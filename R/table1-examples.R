@@ -1,7 +1,7 @@
 install.packages("gtsummary", dependencies = TRUE)
 library(tidyverse)
 library(gtsummary)
-
+library(dplyr)
 # Load and clean data
 nlsy_cols <- c(
   "glasses", "eyesight", "sleep_wkdy", "sleep_wknd",
@@ -101,14 +101,14 @@ tbl_summary(
   missing_text = "Missing"
 
 
-
-#4. stratify by table and sex, add a total column, and add pvalues
+#4. stratify by table and sex, add a total column combining both sexes, and add pvalues
 tbl_summary(
   nlsy,
   by = sex_cat,
   include = c(
     region_cat, race_eth_cat, income,
     starts_with("sleep"),
+    #I changed the sleep variables to "start with" instead of labeling each. same thing.
   ),  label = list(
     region_cat ~ "Region",
     race_eth_cat ~ "Race/ethnicity",
@@ -124,5 +124,85 @@ tbl_summary(
       label = "**Variable**",
       p.value = "**P**") |>
   add_overall(col_label = "**Total** N = {N}")
+
+
+
+#5. For the income variable, show the 10th and 90th percentiles of income with 3
+#digits, and for the sleep variables, show the min and the max with 1 digit.
+tbl_summary(
+  nlsy,
+  by = sex_cat,
+  include = c(
+    region_cat, race_eth_cat, income,
+    starts_with("sleep")
+  ),  label = list(
+    region_cat ~ "Region",
+    race_eth_cat ~ "Race/ethnicity",
+    income ~ "Income",
+    sleep_wkdy ~ "Sleep on Weekdays",
+    sleep_wknd ~ "Sleep on Weekends"
+  ),
+  statistic = list(
+    income ~ "{p10}, {p90}",
+    starts_with("sleep") ~ "{min},{max}"
+  ),
+  digits = list(
+    income ~ 3,
+    starts_with("sleep") ~ 1
+  )
+) |>
+  add_p(test = list(
+    all_continuous() ~ "t.test",
+    all_categorical() ~ "chisq.test"
+  )) |>
+  modify_header(
+    label = "**Variable**",
+    p.value = "**P**") |>
+  add_overall(col_label = "**Total** N = {N}")
+
+
+
+
+#Add a footnote to the race/ethnicity variable with a link to the page
+#describing how NLSY classified participants:
+#https://www.nlsinfo.org/content/cohorts/nlsy79/topical-guide/household/race-ethnicity-immigration-data
+
+tbl_summary(
+  nlsy,
+  by = sex_cat,
+  include = c(
+    region_cat, race_eth_cat, income,
+    starts_with("sleep")
+  ),  label = list(
+    region_cat ~ "Region",
+    race_eth_cat ~ "Race/ethnicity",
+    income ~ "Income",
+    sleep_wkdy ~ "Sleep on Weekdays",
+    sleep_wknd ~ "Sleep on Weekends"
+  ),
+  statistic = list(
+    income ~ "{p10}, {p90}",
+    starts_with("sleep") ~ "{min},{max}"
+  ),
+  digits = list(
+    income ~ 3,
+    starts_with("sleep") ~ 1
+  )
+) |>
+  add_p(test = list(
+    all_continuous() ~ "t.test",
+    all_categorical() ~ "chisq.test"
+  )) |>
+  modify_header(
+    label = "**Variable**",
+    p.value = "**P**") |>
+  add_overall(col_label = "**Total** N = {N}")|>
+  # add a caption
+  modify_caption("**Participant characteristics**")|>
+ modify_footnote_body(footnote = "https://www.nlsinfo.org/content/cohorts/nlsy79/topical-guide/household/race-ethnicity-immigration-data
+",
+columns = "label",
+rows = variable == "race_eth_cat" & row_type == "label"
+)
 
 
