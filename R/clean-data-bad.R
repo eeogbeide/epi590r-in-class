@@ -18,4 +18,6 @@ nlsy <- nlsy |>
 
 nlsy <- na.omit(nlsy)
 
-
+install.packages("here")
+here::here()
+getwd()
