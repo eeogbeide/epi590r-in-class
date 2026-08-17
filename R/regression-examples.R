@@ -196,24 +196,14 @@ tbl_regression(
 
 
 #6 Make a table comparing the logistic and the log-binomial results.
-tbl_logistic<-tbl_uvregression(
-  nlsy,
-  y = nsibs,
-  include = c(
-    sex_cat, race_eth_cat,
-    eyesight_cat, age_bir
-  ),
-  method = glm,
-  method.args = list(family = poisson()),
+tbl_logistic <- tbl_regression(
+  logistic_model,
   exponentiate = TRUE,
   label = list(
     sex_cat ~ "Sex",
-    race_eth_cat ~ "Race/ethnicity",
-    eyesight_cat ~ "Eyesight",
-    age_bir ~ "Age at first birth"
+    eyesight_cat ~ "Eyesight"
   )
 )
-
 tbl_binomial_log<- tbl_uvregression(
   nlsy,
   y = glasses,
@@ -244,4 +234,29 @@ tbl_merge(list(tbl_logistic, tbl_binomial_log),
 
 Log_poisson_model <-  glm(glasses ~ sex_cat + eyesight_cat,
                          data = nlsy, family = poisson())
-Log_poisson_model_robust <-
+
+Log_poisson_table <-tbl_regression(
+  Log_poisson_model,
+  exponentiate = TRUE,
+  label = list(
+    sex_cat ~ "Sex",
+    eyesight_cat ~ "Eyesight"
+  )
+  )
+
+Log_poisson_table_robust <-tbl_regression(
+  Log_poisson_model,
+  exponentiate = TRUE,
+  label = list(
+    sex_cat ~ "Sex",
+    eyesight_cat ~ "Eyesight"
+  ),
+  tidy_fun = partial(tidy_robust, vcov = "HC1")
+)
+
+tbl_merge(list(Log_poisson_table, Log_poisson_table_robust),
+          tab_spanner = c("**W/o**", "**W/ Robust**")
+)
+
+
+
