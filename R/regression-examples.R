@@ -21,7 +21,7 @@ nlsy <- read_csv(here::here("data", "raw", "nlsy.csv"),
 
 
 # Univariate regression
-# this funciton is BOTH running the regressions and creating the table
+# this function is BOTH running the regressions and creating the table
 
 # regression of income on a series of predictor (x) variables
 tbl_uvregression(
@@ -132,3 +132,116 @@ tbl_merge(list(tbl_no_int, tbl_int),
 )
 
 
+# 3 Each of the univariate regression examples held the outcome (y =) constant,
+# while varying the predictor variables with include =. You can also look at one
+# predictor across several outcomes. Create a univariate regression table
+# looking at the association between sex (sex_cat) as the x = variable and each
+# of nsibs, sleep_wkdy, and sleep_wknd, and income.
+
+tbl_uvregression(
+  nlsy,
+  y = glasses,
+  include = c(
+    nsibs, sleep_wkdy, sleep_wknd, income
+  ),
+  method = glm,
+  method.args = list(family = binomial()),
+  exponentiate = TRUE
+)
+
+
+# 4 Fit a Poisson regression (family = poisson()) for the number of siblings,
+# using at least 3 predictors of your choice. Create a nice table displaying
+# your Poisson regression and its exponentiated coefficients.
+# poisson model
+poisson_model <- glm(nsibs ~ sex_cat + race_eth_cat+ eyesight_cat + age_bir,
+                      data = nlsy, family = poisson()
+)
+
+tbl_uvregression(
+  nlsy,
+  y = nsibs,
+  include = c(
+    sex_cat, race_eth_cat,
+    eyesight_cat, age_bir
+  ),
+  method = glm,
+  method.args = list(family = poisson()),
+  exponentiate = TRUE,
+  label = list(
+    sex_cat ~ "Sex",
+    race_eth_cat ~ "Race/ethnicity",
+    eyesight_cat ~ "Eyesight",
+    age_bir ~ "Age at first birth"
+  )
+)
+
+# 5 Instead of odds ratios for wearing glasses, as in the example in the
+# slides., we want risk ratios. We can do this by specifying in the regression
+# family = binomial(link = "log"). Regress glasses on eyesight_cat and sex_cat
+# and create a table showing the risk ratios and confidence intervals from this
+# regression.
+log_bino_model <- glm(glasses ~ sex_cat + eyesight_cat,
+                     data = nlsy, family = binomial(link="log")
+)
+
+tbl_regression(
+  log_bino_model, # Correct function for a pre-fitted model object
+  exponentiate = TRUE,
+  label = list(
+    sex_cat ~ "Sex",
+    eyesight_cat ~ "Eyesight"
+  )
+)
+
+
+#6 Make a table comparing the logistic and the log-binomial results.
+tbl_logistic<-tbl_uvregression(
+  nlsy,
+  y = nsibs,
+  include = c(
+    sex_cat, race_eth_cat,
+    eyesight_cat, age_bir
+  ),
+  method = glm,
+  method.args = list(family = poisson()),
+  exponentiate = TRUE,
+  label = list(
+    sex_cat ~ "Sex",
+    race_eth_cat ~ "Race/ethnicity",
+    eyesight_cat ~ "Eyesight",
+    age_bir ~ "Age at first birth"
+  )
+)
+
+tbl_binomial_log<- tbl_uvregression(
+  nlsy,
+  y = glasses,
+  include = c(
+    sex_cat,
+    eyesight_cat
+  ),
+  method = glm,
+  method.args = list(family = binomial(link="log")),
+  exponentiate = TRUE,
+  label = list(
+    sex_cat ~ "Sex",
+    eyesight_cat ~ "Eyesight"
+  )
+)
+
+tbl_merge(list(tbl_logistic, tbl_binomial_log),
+          tab_spanner = c("**Logstic Table**", "**Log-Binomial Table**")
+)
+
+
+#BONUS: Since family = binomial(link = "log") often doesn’t converge, we often
+#use Poisson regression with robust standard errors to estimate risk ratios. Fit
+#a Poisson regression instead of the log-binomial regression for question 6.
+#Then create a table using tidy_fun = partial(tidy_robust, vcov = "HC1"). It
+#will prompt you to install new package(s) (yes!). See this page for more on
+#custom tidiers.
+
+Log_poisson_model <-  glm(glasses ~ sex_cat + eyesight_cat,
+                         data = nlsy, family = poisson())
+Log_poisson_model_robust <-
