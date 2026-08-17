@@ -1,3 +1,4 @@
+install.packages("gtsummary", dependencies = TRUE)
 library(tidyverse)
 library(gtsummary)
 
@@ -80,5 +81,48 @@ tbl_summary(
   modify_header(label = "**Variable**", p.value = "**P**") |>
   # add a caption
   modify_caption("**Participant characteristics**")
+
+
+###you try 3. simple table that includes categorical region, race/ethnicity,
+#income, and the sleep variables. make them nicely labeled
+tbl_summary(
+  nlsy,
+  by = sex_cat,
+  include = c(
+    region_cat, race_eth_cat, income,
+    sleep_wkdy, sleep_wknd,
+  ),  label = list(
+    region_cat ~ "Region",
+    race_eth_cat ~ "Race/ethnicity",
+    income ~ "Income",
+    sleep_wkdy ~ "Sleep on Weekdays",
+    sleep_wknd ~ "Sleep on Weekends"
+  ))
+  missing_text = "Missing"
+
+
+
+#4. stratify by table and sex, add a total column, and add pvalues
+tbl_summary(
+  nlsy,
+  by = sex_cat,
+  include = c(
+    region_cat, race_eth_cat, income,
+    starts_with("sleep"),
+  ),  label = list(
+    region_cat ~ "Region",
+    race_eth_cat ~ "Race/ethnicity",
+    income ~ "Income",
+    sleep_wkdy ~ "Sleep on Weekdays",
+    sleep_wknd ~ "Sleep on Weekends"
+  )) |>
+  add_p(test = list(
+    all_continuous() ~ "t.test",
+    all_categorical() ~ "chisq.test"
+  )) |>
+    modify_header(
+      label = "**Variable**",
+      p.value = "**P**") |>
+  add_overall(col_label = "**Total** N = {N}")
 
 
