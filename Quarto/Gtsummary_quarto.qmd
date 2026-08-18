@@ -77,7 +77,6 @@ tbl_summary(
 
 There were a lot of people who slept (@tbl-sleep)
 
-
 ```{r}
 #| label: tbl-sleep
 #| tbl-cap: "Descriptive statistics including sleep"
@@ -104,8 +103,58 @@ stats <- list(n = nrow(data),
 stats
 inline_text(tbl_sleep,variable="sleep_wknd",column= "Northeast", pattern = "{median}")
 ```
+
 ```{r}
 median_sleep <- median(nlsy$sleep_wknd, na.rm = TRUE)
 ```
 
 The median number of hours of sleep was `r median_sleep`
+
+```{r}
+# tbl_sleep$table_body
+inline_text(tbl_sleep, variable ="sleep_wknd", 
+            column = "stat_0")
+inline_text(tbl_sleep,variable = "eyesight_cat",
+            level= "Excellent",
+            column = "stat_0")
+```
+
+In the sample the average sleep on weekends was `r inline_text(tbl_sleep, variable = "sleep_wknd", column = "stat_0")`.
+
+```{r}
+
+mean_sleep_wknd <- mean(nlsy$sleep_wknd, na.rm = TRUE)
+
+inline_text(tbl_sleep,variable="sleep_wknd",column= "Northeast", pattern = "{stats$mean_sleep_wknd}")
+```
+
+In the sample the mean sleep on weeknds was `r mean(nlsy$sleep_wknd, na.rm = TRUE)` .
+
+```{r}
+#| label: tbl-sleep-means
+#| tbl-cap: "Descriptive statistics including sleep"
+
+tbl_sleep2<- tbl_summary(
+  nlsy,
+  by = region_cat,
+  include = c(sleep_wknd,eyesight_cat,
+              race_eth_cat,income,nsibs), label = list(
+    sleep_wknd ~ "Sleep on Weekends",
+    eyesight_cat ~ "Eyesight",
+    race_eth_cat ~ "Race/ethnicity",
+    income ~ "Income",
+    nsibs ~ "Number of siblings"
+    ),
+  statistic = list(all_continuous()~"{mean},sd ={sd}")) |>
+  add_overall()
+tbl_sleep2
+```
+
+```{r}
+inline_text(tbl_sleep2,variable ="sleep_wknd",
+            column="Northeast")
+inline_text(tbl_sleep2, variable = "sleep_wknd", 
+            column = "Northeast", pattern = "{mean}")
+```
+
+There are multiple ways we could report the median, `r median_sleep`, or the mean `r mean_sleep_wknd`.
