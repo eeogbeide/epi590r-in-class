@@ -157,3 +157,5 @@ sd(x,na.rm=TRUE)
 new_sd(c(1,245,2020))
 sd(c(1,245,2020))
 
+str(nlsy)
+new_sd(nlsy$income)
