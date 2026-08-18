@@ -2,7 +2,7 @@
 title: "gtsummary in quarto"
 format: 
   html:
-    theme: minty
+    theme: quartz
 execute:
   echo: false
 ---
@@ -26,6 +26,10 @@ nlsy <- read_csv(here::here("data", "raw", "nlsy.csv"),
 
 # Customization of `tbl_summary()`
 
+*This table is a summary of the demographic characteristics of male and female participants in the United States.*
+
+We’re using some data from the [**National Longitudinal Survey of Youth 1979**](https://www.nlsinfo.org/content/cohorts/nlsy79)**,** a cohort of American young adults aged 14-22 at enrollment in 1979. They continue to be followed to this day, and there is a wealth of publicly available data [**online**](https://www.nlsinfo.org/investigator/pages/login.jsp). I’ve downloaded the answers to a survey question about whether respondents wear glasses, a scale about their eyesight with glasses, their (NLSY-assigned 😒) race/ethnicity, their sex (presumably at birth, but unclear), their family’s income in 1979, and their age at the birth of their first child.
+
 ```{r}
 tbl_summary(
   nlsy,
@@ -48,4 +52,12 @@ tbl_summary(
     age_bir ~ "Age at first birth"
   ),
   missing_text = "Missing")
+```
+
+```{r}
+tbl_summary(
+  nlsy,
+  by = sex_cat,
+  include = c(sex_cat, race_eth_cat, region_cat,
+              eyesight_cat, glasses, age_bir))
 ```
