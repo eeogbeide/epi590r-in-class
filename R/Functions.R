@@ -11,6 +11,7 @@ new_mean <- function(x) {
 	return(mean_val)
 }
 
+#You Try!
 
 # start out with a number to test
 x <- 3
@@ -28,3 +29,47 @@ square(53)
 53^2 # does this match?
 
 
+# 1. Write a function to raise to any power. You don’t just want to square
+# numbers, you want to raise them to higher powers too. Make a function that
+# uses two arguments, x for a number, and power for the power. Call it raise().
+x <-2
+power <- 4
+
+x^power
+
+raise <- function(x) {
+	raised_val <- x^power
+	return(raised_val)
+}
+
+raise(x)
+
+# test with
+raise(x = 2, power = 4)
+# should give you
+2^4
+
+#2. Change your raise() function to default to squaring x when the user doesn’t
+#enter a value for power.
+
+# test
+raise(x = 5)
+# should give you
+5^2
+
+x <-5
+power <- 4
+
+x^power
+
+raise <- function(x,power = 2) {
+	raised_val <- x^power
+	return(raised_val)
+}
+#same
+raise(x=2, power=4)
+raise(power=4,x=2)
+
+#different
+raise(2,4)
+raise(4,2)
